@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load media_tag %}
+{% load static %}
+
+{% block content %}
+    <div class="p-3 pb-md-4 mx-auto text-center">
+        <p class="fs-5 text-body-secondary">
+            Statistics
+        </p>
+    </div>
+    <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
+        <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm">
+                <div class="card-header py-3">
+                    <h4 class="my-0 fw-normal">Created</h4>
+                </div>
+                <div class="card-body">
+                    <h1 class="card-title pricing-card-title">{{ total_mailings }}</h1>
+                    <p>mailings</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm">
+                <div class="card-header py-3">
+                    <h4 class="my-0 fw-normal">Launched</h4>
+                </div>
+                <div class="card-body">
+                    <h1 class="card-title pricing-card-title">{{ total_active_mailings }}</h1>
+                    <p>mailings</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm">
+                <div class="card-header py-3">
+                    <h4 class="my-0 fw-normal">Subscribers</h4>
+                </div>
+                <div class="card-body">
+                    <h1 class="card-title pricing-card-title">{{ total_unique_emails }}</h1>
+                    <p>unique</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+        <h2 class="display-5 fw-normal">Blog</h2>
+        <p class="fs-5 text-body-secondary">Random article</p>
+    </div>
+    {% for object in blog %}
+        <div class="col-4">
+            <div class="card mb-4 box-shadow">
+                <div class="card-header text-center">
+                    <h4 class="my-0 font-weight-normal">
+                        {{ object }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% if object.preview %}
+                        <img src="{% mediapath object.preview %}" alt="{{ object }}" class="rounded img-fluid mb-3"/>
+                    {% else %}
+                        <img src="{% static 'img/article_default_img.jpg' %}" alt="{{ object }}"
+                             class="rounded img-fluid"/>
+                    {% endif %}
+                    <p>
+                        {{ object.content|truncatechars:100 }}
+                        <a href="{% url 'blog:view_article' object.slug %}">Read more</a>
+                    </p>
+                </div>
+                <div class="card-footer p-1 small text-muted text-end">
+                    {{ object.created_on }} | Views: {{ object.views }}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock %}

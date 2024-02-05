@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+        <div class="col-12 mb-3">
+            <a href="{% url 'mailing:create_mailing' %}" class="btn btn-lg btn-outline-primary">Create a newsletter</a>
+        </div>
+    {% endif %}
+    <div class="row mb-3">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Mailing name</th>
+                <th scope="col">Time</th>
+                <th scope="col">Periodicity</th>
+                <th scope="col">Mailing status</th>
+                {% if perms.view_mailing %}
+                    <th scope="col">Author of the newsletter</th>
+                {% endif %}
+                <th scope="col">Published</th>
+                <th scope="col">Management</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for object in object_list %}
+                <tr>
+                    <td>
+                        {{ object.id }}
+                    </td>
+                    <td>
+                        {{ object }}
+                    </td>
+                    <td>
+                        {% for obj in object.settings.get_queryset %}
+                            {{ obj|default:'Не указано' }}<br/>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for obj in object.settings.get_queryset %}
+                            {{ obj.get_mailing_period_display }}<br/>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for obj in object.settings.get_queryset %}
+                            {{ obj.get_mailing_status_display }}<br/>
+                        {% endfor %}
+                    </td>
+                    {% if perms.view_mailing %}
+                        <td>
+                            {{ object.owner }}
+                        </td>
+                    {% endif %}
+                    <td>
+                        {{ object.is_published|yesno:"Да, Нет" }}
+                    </td>
+                    {% if user == object.owner or perms.mailing.view_mailingmessage %}
+                        <td>
+                            <a href="{% url 'mailing:mailing_details' object.pk %}">View</a>
+                            {% if user.is_superuser or user == object.owner %}
+                                <br/><a href="{% url 'mailing:update_mailing' object.pk %}">Edit</a>
+                            {% elif perms.mailing.can_cancel_mailing %}
+                                <br/><a href="{% url 'mailing:update_mailing' object.pk %}">Change status</a>
+                            {% endif %}
+                            {% if user == object.owner or perms.mailing.delete_mailingmessage %}
+                                <br/><a href="{% url 'mailing:delete_mailing' object.pk %}">Delete</a>
+                            {% endif %}
+                        </td>
+                    {% else %}
+                        <td></td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="row text-center">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a class="btn btn-primary d-inline-flex align-items-center"
+               href="?page=1">&laquo; First</a>
+            <a class="btn btn-primary d-inline-flex align-items-center"
+               href="?page={{ page_obj.previous_page_number }}">Last</a>
+        {% endif %}
+
+        {% if page_obj.has_next %}
+            <a class="btn btn-primary d-inline-flex align-items-center"
+               href="?page={{ page_obj.next_page_number }}">Next</a>
+            <a class="btn btn-primary d-inline-flex align-items-center"
+               href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+        {% endif %}
+
+        <small class="d-block mb-3 text-muted mt-2">
+            Page {{ page_obj.number }} from {{ page_obj.paginator.num_pages }}
+        </small>
+    </span>
+    </div>
+{% endblock %}

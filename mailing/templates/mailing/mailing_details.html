@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+    <div class="col-lg-12 col-md-6 col-sm-12">
+        <div class="card mb-4 box-shadow">
+            <div class="card-header"><h3>{{ object }}</h3></div>
+            <div class="card-body">
+                <p>Статус: {{ object.is_published|yesno:"Опубликована,Не опубликована" }}</p>
+                <p><strong>Full Text Of The Newsletter:</strong> {{ object.body }}</p>
+                {% if settings %}
+                    <table class="table table-striped-columns">
+                    {% for i in settings %}
+                        <tr>
+                            <td class="col-2">Mailing Period:</td>
+                            <td>{{ i.mailing_start }} - {{ i.mailing_end }}</td>
+                        </tr>
+                        <tr>
+                            <td>Mailing Frequency:</td>
+                            <td>{{ i.get_mailing_period_display }}</td>
+                        </tr>
+                        <tr>
+                            <td>Status:</td>
+                            <td>{{ i.get_mailing_status_display }}</td>
+                        </tr>
+                    {% endfor %}
+                    </table>
+                {% endif %}
+                <p>
+                    <small>Recipient:
+                    {% for obj in object.recipient.get_queryset %}
+                    {{ obj }}
+                    {% endfor %}
+                </small>
+                </p>
+                <p>
+                <small>Creator: {{ object.owner }}</small>
+                </p>
+            </div>
+            <div class="card-footer pt-4">
+                {% if user.is_authenticated %}
+                    <p>
+                    {% if user.is_superuser or user == object.owner %}
+                        <a href="{% url 'mailing:update_mailing' object.pk %}"
+                           class="m-1 btn btn-sm btn-outline-warning">Edit newsletter</a>
+                    {% elif perms.mailing.can_cancel_mailing %}
+                        <a href="{% url 'mailing:update_mailing' object.pk %}"
+                           class="m-1 btn btn-sm btn-outline-warning">Change publishind options</a>
+                    {% endif %}
+                    {% if perms.mailing.delete_mailingmessage or user == object.owner %}
+                        <a href="{% url 'mailing:delete_mailing' object.pk %}"
+                           class="m-1 btn btn-sm btn-outline-danger">Delete newsletter</a>
+                    {% endif %}
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

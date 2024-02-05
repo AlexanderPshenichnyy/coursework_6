@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+        <div class="col-12 mb-3">
+            <a href="{% url 'clients:add_client' %}" class="btn btn-lg btn-outline-primary">Add a subscriber</a>
+        </div>
+    {% endif %}
+    <div class="row mb-3">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th scope="col">Email</th>
+                <th scope="col">Subscriber name</th>
+                {% if perms.clients.view_client %}
+                    <th scope="col">Owner</th>
+                {% endif %}
+                <th scope="col">Comment</th>
+                <th scope="col">Manegement</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for object in object_list %}
+                <tr>
+                    <td>
+                        {{ object.email }}
+                    </td>
+                    <td>
+                        {{ object.name }}
+                    </td>
+                    {% if perms.clients.view_client %}
+                        <td>
+                            {{ object.owner }}
+                        </td>
+                    {% endif %}
+                    <td>
+                        {{ object.comment|default:'-'|truncatechars:30 }}
+                    </td>
+                    <td>
+                        {% if user.is_superuser or user == object.owner %}
+                            <a href="{% url 'clients:edit_client' object.pk %}">Edit</a> |
+                            <a href="{% url 'clients:delete_client' object.pk %}">Delete</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="row text-center">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a class="btn btn-primary d-inline-flex align-items-center"
+               href="?page=1">&laquo; First</a>
+            <a class="btn btn-primary d-inline-flex align-items-center"
+               href="?page={{ page_obj.previous_page_number }}">Last</a>
+        {% endif %}
+
+        {% if page_obj.has_next %}
+            <a class="btn btn-primary d-inline-flex align-items-center"
+               href="?page={{ page_obj.next_page_number }}">Next</a>
+            <a class="btn btn-primary d-inline-flex align-items-center"
+               href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+        {% endif %}
+
+        <small class="d-block mb-3 text-muted mt-2">
+            Page {{ page_obj.number }} from {{ page_obj.paginator.num_pages }}
+        </small>
+    </span>
+    </div>
+{% endblock %}
